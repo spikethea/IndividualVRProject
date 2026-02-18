@@ -3,7 +3,15 @@ using UnityEngine;
 
 public class Train : MonoBehaviour
 {
-    private float speed = 10f;
+    [SerializeField] Transform DepotPoint;
+    [SerializeField] Transform PlatformPoint;
+    [SerializeField] Transform TunnelPoint;
+
+    private float smoothTime = 5;
+
+    public Vector3 velocity = new Vector3(0, 0, 2);
+    Vector3 targetPos;
+
     private bool scheduleIsRunning = true;
     Vector3 originalPosition;
     public int stoppingState = 0;
@@ -12,6 +20,8 @@ public class Train : MonoBehaviour
         while (scheduleIsRunning)
         {
             yield return new WaitForSeconds(5);
+            stoppingState = 0;
+            yield return new WaitForSeconds(10);
             stoppingState = 1;
             yield return new WaitForSeconds(5);
             stoppingState = 2;
@@ -32,13 +42,14 @@ public class Train : MonoBehaviour
         {
             case 0:
                 // code block
+                transform.position = Vector3.SmoothDamp(transform.position, DepotPoint.position, ref velocity, smoothTime);
                 break;
             case 1:
                 // code block
-                transform.position = originalPosition;
+                transform.position = Vector3.SmoothDamp(transform.position, PlatformPoint.position, ref velocity, smoothTime);
                 break;
             case 2:
-                transform.Translate(Vector3.forward * Time.deltaTime * speed);
+                transform.position = Vector3.SmoothDamp(transform.position, TunnelPoint.position, ref velocity, smoothTime);
                 break;
             default:
                 // code block
