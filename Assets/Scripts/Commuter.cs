@@ -9,7 +9,7 @@ public class Commuter : MonoBehaviour
     [SerializeField] GameObject AnimatorRoot;
 
     public float walkingSpeed = 1.0f; // Speed at which the commuter walks
-    public bool isWalking = false;
+    public bool isWalkingMode = false;
 
     private Animator animator;
     private float moveTimer;
@@ -37,12 +37,14 @@ public class Commuter : MonoBehaviour
         agent.stoppingDistance = 0f;
 
         moveTimer = 0f;
-        isWalking = true;
+        isWalkingMode = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.DrawRay(transform.position, transform.forward * 4);
+        if (!isWalkingMode) return;
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
             moveTimer += Time.deltaTime;
@@ -56,12 +58,17 @@ public class Commuter : MonoBehaviour
         }
 
         if (agent.velocity.x > 0.1 || agent.velocity.z > 0.1) {
-            isWalking = true;
             animator.SetBool("isWalking", true);
         } else {
-            isWalking = false;
             animator.SetBool("isWalking", false);
         }
+    }
+
+    public void LookAround() {
+        agent.isStopped = true;
+        isWalkingMode = false;
+        animator.Play("HeadLookAround", 0, 0f);
+        animator.SetBool("isWalking", false);
     }
 
     private void MoveToRandomNearbyPoint(float radius)
